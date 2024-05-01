@@ -1,0 +1,50 @@
+---
+    # Add workflow to run tests in GitHub Actions
+    # Example copied from https://github.com/puppetlabs/pdk/discussions/1069
+    name: pdk
+    
+    on:
+      push:
+        branches:
+        - 'main'
+        - 'production'
+        - 'staging'
+      pull_request:
+        branches:
+          - 'production'
+        types: ['opened', 'synchronize', 'reopened', 'ready_for_review']
+    
+    concurrency:
+       group: '${{ github.workflow }}-${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+       cancel-in-progress: true
+    
+    jobs:
+      pdk:
+        if: github.event.pull_request.draft == false
+        runs-on: ubuntu-latest
+        strategy:
+          fail-fast: false
+          matrix:
+            puppet_versions:
+              - '7'
+    
+        name: Puppet ${{ matrix.puppet_versions }}
+        steps:
+          - uses: actions/checkout@v3
+          - name: Install the PDK
+            run: |
+              source /etc/os-release
+              wget https://apt.puppet.com/puppet-tools-release-${UBUNTU_CODENAME}.deb
+              sudo dpkg -i puppet-tools-release-${UBUNTU_CODENAME}.deb
+              sudo apt-get update
+              sudo apt-get install pdk
+          - name: Syntax validation
+            env:
+              PUPPET_VERSION: ${{ matrix.puppet_versions }}
+            run: ./tests/pdk-validate.sh
+            continue-on-error: true
+          - name: Unit tests
+            env:
+              PUPPET_VERSION: ${{ matrix.puppet_versions }}
+            run: ./tests/pdk-test.sh
+            continue-on-error: false

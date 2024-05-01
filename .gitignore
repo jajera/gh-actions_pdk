@@ -1,0 +1,31 @@
+# PDK related
+/dist/**/bin/
+/dist/**/convert_report.txt
+/dist/**/Gemfile.local
+/dist/**/Gemfile.lock
+/dist/**/update_report.txt
+/dist/**/spec/fixtures/manifests/
+/dist/**/spec/fixtures/modules/
+/dist/**/.yardoc/
+
+# Puppet related
+/modules
+/keys
+
+# File editing misc
+**/.idea/*
+**/.vscode/*
+*.backup
+*.log
+*.bak
+.*.swp
+*~
+
+bolt
+bolt_projects/*/.modules/
+.resource_types/
+bolt-debug.log
+.plan_cache.json
+.plugin_cache.json
+.task_cache.json
+.rerun.json
