@@ -30,13 +30,9 @@ jobs:
       - name: Get directories list
         id: get-dirs
         run: |
-          echo "github_event_name: ${{ github.event_name }}"
-          echo "event action is:" ${{ github.event.action }} 
-          echo "ref is:" ${{ github.ref }} 
-          echo "head ref is:" ${{ github.head_ref }} 
-          if [ "$github_ref" != 'refs/heads/staging' ] && \
-             [ "$github_ref" != 'refs/heads/production' ] && \
-             [ "$github_event_name" != 'pull_request' ]; then
+          if [ "${{ github.ref }}" != 'refs/heads/staging' ] && \
+             [ "${{ github.ref }}" != 'refs/heads/production' ] && \
+             [ "${{ github.event_name }}" != 'pull_request' ]; then
             source_branch="staging"
             git fetch origin $source_branch
             dirs=$(git diff --name-only "origin/$source_branch"..HEAD | grep '^dist/' | cut -d'/' -f1-2 | sort | uniq | jq -R . | jq -s . | jq -cr '@json')
