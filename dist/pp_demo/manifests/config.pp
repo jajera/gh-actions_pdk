@@ -18,4 +18,8 @@ class pp_demo::config {
   file { '/tmp/test1':
     ensure  => file,
   }
+
+  file { '/tmp/test2':
+    ensure  => file,
+  }
 }
