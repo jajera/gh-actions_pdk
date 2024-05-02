@@ -22,8 +22,4 @@ class pp_demo::config {
   file { '/tmp/test2':
     ensure  => file,
   }
-
-  file { '/tmp/test3':
-    ensure  => file,
-  }
 }
