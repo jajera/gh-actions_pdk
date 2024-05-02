@@ -3,18 +3,11 @@ name: pdk
 
 on:
   push:
-    # branches-ignore:
-    #   - 'development'
-    #   - 'production'
-    #   - 'staging'
-  # pull_request:
-  #   # branches:
-  #   #   - 'production'
-  #   #   - 'staging'
-  #   types: ['opened', 'synchronize', 'reopened', 'ready_for_review']
+  pull_request:
+    types: ['opened', 'synchronize', 'reopened', 'ready_for_review']
 
 concurrency:
-  group: '${{ github.workflow }}-${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
