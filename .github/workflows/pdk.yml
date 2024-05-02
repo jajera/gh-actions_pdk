@@ -31,8 +31,9 @@ jobs:
         id: get-dirs
         run: |
           echo "github_event_name: ${{ github.event_name }}"
-          echo "event type is:" ${{ github.event.action }} 
-
+          echo "event action is:" ${{ github.event.action }} 
+          echo "ref is:" ${{ github.ref }} 
+          echo "head ref is:" ${{ github.head_ref }} 
           if [ "$github_ref" != 'refs/heads/staging' ] && \
              [ "$github_ref" != 'refs/heads/production' ] && \
              [ "$github_event_name" != 'pull_request' ]; then
