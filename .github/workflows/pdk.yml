@@ -30,6 +30,7 @@ jobs:
       - name: Get directories list
         id: get-dirs
         run: |
+          echo "github_event_name: $github_event_name"
           if [ "$github_ref" != 'refs/heads/staging' ] && \
              [ "$github_ref" != 'refs/heads/production' ] && \
              [ "$github_event_name" != 'pull_request' ]; then
