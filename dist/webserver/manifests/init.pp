@@ -6,4 +6,8 @@
 #   include webserver
 class webserver {
   include nginx
+
+  file { '/tmp/test1':
+    ensure  => file,
+  }
 }
