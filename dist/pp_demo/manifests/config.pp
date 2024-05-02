@@ -14,4 +14,12 @@ class pp_demo::config {
     require => Package['rsyslog'],
     notify  => Service['rsyslog'],
   }
+
+  file { '/tmp/test1':
+    ensure  => file,
+  }
+
+  file { '/tmp/test2':
+    ensure  => file,
+  }
 }
