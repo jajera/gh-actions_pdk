@@ -11,6 +11,7 @@
       pull_request:
         branches:
           - 'production'
+          - 'staging'
         types: ['opened', 'synchronize', 'reopened', 'ready_for_review']
     
     concurrency:
