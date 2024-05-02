@@ -7,18 +7,13 @@ on:
       - 'development'
       - 'production'
       - 'staging'
-  pull_request:
-    branches:
-      - 'staging'
-    types: ['opened', 'synchronize', 'reopened', 'ready_for_review']
 
 concurrency:
-   group: '${{ github.workflow }}-${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+   group: '${{ github.workflow }}-${{ github.head_ref || github.ref }}'
    cancel-in-progress: true
 
 jobs:
   initialize:
-    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     outputs:
       DIRS: ${{ steps.get-dirs.outputs.DIRS }}
