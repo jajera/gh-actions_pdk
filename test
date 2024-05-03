@@ -1,2 +1,24 @@
-test1
-test2
+# staging pr
+github.event_name: pull_request 
+github.head_ref: gha1
+github.ref: refs/pull/28/merge
+github.base_ref: staging
+
+# staging push
+github.event_name: push
+github.head_ref: 
+github.ref: refs/heads/staging
+github.base_ref: 
+
+
+# prod pr
+github.event_name: pull_request
+github.head_ref: staging
+github.ref: refs/pull/29/merge
+github.base_ref: production
+
+# prod push
+github.event_name: push
+github.head_ref: 
+github.ref: refs/heads/production
+github.base_ref: 
