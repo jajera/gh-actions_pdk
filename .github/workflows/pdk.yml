@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - 'development'
+      - 'staging'
+      - 'production'
   pull_request:
     branches:
       - 'staging'
