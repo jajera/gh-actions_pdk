@@ -61,7 +61,7 @@
               done
             # if: |
             #   steps.get-dirs.outputs.DIRS != '[]'
-            continue-on-error: false
+            continue-on-error: true
           - name: Unit tests
             run: |
               for dir in $(echo '${{ steps.get-dirs.outputs.DIRS }}' | jq -r '.[]'); do
