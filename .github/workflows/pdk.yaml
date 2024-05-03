@@ -23,10 +23,10 @@
         strategy:
           fail-fast: false
           matrix:
-            puppet_versions:
+            puppet_version:
               - '7'
     
-        name: Puppet ${{ matrix.puppet_versions }}
+        name: Puppet ${{ matrix.puppet_version }}
         steps:
           - uses: actions/checkout@v4
           - name: Get directories list
@@ -42,44 +42,34 @@
               fi
               echo "dirs: $dirs"
               echo "DIRS=$dirs" >> "$GITHUB_OUTPUT"
-          # - name: Install the PDK
-          #   run: |
-          #     source /etc/os-release
-          #     wget https://apt.puppet.com/puppet-tools-release-${UBUNTU_CODENAME}.deb
-          #     sudo dpkg -i puppet-tools-release-${UBUNTU_CODENAME}.deb
-          #     sudo apt-get update
-          #     sudo apt-get install pdk
-          #   if: |
-          #     steps.get-dirs.outputs.DIRS != '[]'
-          - run: |
-              DIRS="${{ steps.get-dirs.outputs.DIRS }}"
-              echo "test1: $DIRS"
-              echo test2: "${{ fromJSON(steps.get-dirs.outputs.DIRS) }}"
-              abc="${{ fromJSON(steps.get-dirs.outputs.DIRS) }} | jq '.[]'"
-              echo "test3: $abc"
-              echo '${{ steps.get-dirs.outputs.DIRS }}' | jq '.[]'
-          - name: Syntax validation
+          - name: Install the PDK
             run: |
-              ls
-              ls dist
-              for dir in $(echo '${{ steps.get-dirs.outputs.DIRS }}' | jq '.[]'); do
-                echo -e "\nProcessing directory: $dir"
-                cd "$dir" || exit
-                pdk validate --puppet-version ${{ matrix.puppet_versions }}
-                cd -
-              done
+              source /etc/os-release
+              wget https://apt.puppet.com/puppet-tools-release-${UBUNTU_CODENAME}.deb
+              sudo dpkg -i puppet-tools-release-${UBUNTU_CODENAME}.deb
+              sudo apt-get update
+              sudo apt-get install pdk
             if: |
               steps.get-dirs.outputs.DIRS != '[]'
-            continue-on-error: true
-          # - name: Unit tests
-          #   run: |
-          #     DIRS="${{ fromJSON(steps.get-dirs.outputs.DIRS) }}"
-          #     for dir in $(echo "$DIRS" | jq -r '.[]'); do
-          #       echo -e "\nProcessing directory: $dir"
-          #       cd "$dir" || exit
-          #       pdk test unit --verbose ${{ matrix.puppet_versions }}
-          #       cd -
-          #     done
-          #   if: |
-          #     steps.get-dirs.outputs.DIRS != '[]'
-          #   continue-on-error: false
+          - name: Syntax validation
+            run: |
+              for dir in $(echo '${{ steps.get-dirs.outputs.DIRS }}' | jq -r '.[]'); do
+                echo -e "Processing directory: $dir"
+                cd "$dir" || exit
+                pdk validate --puppet-version "${{ matrix.puppet_version }}"
+                cd -
+              done
+            # if: |
+            #   steps.get-dirs.outputs.DIRS != '[]'
+            continue-on-error: false
+          - name: Unit tests
+            run: |
+              for dir in $(echo '${{ steps.get-dirs.outputs.DIRS }}' | jq -r '.[]'); do
+                echo -e "\nProcessing directory: $dir"
+                cd "$dir" || exit
+                pdk test unit --verbose ${{ matrix.puppet_version }}
+                cd -
+              done
+            # if: |
+            #   steps.get-dirs.outputs.DIRS != '[]'
+            continue-on-error: false
