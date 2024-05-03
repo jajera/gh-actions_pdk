@@ -33,7 +33,7 @@ jobs:
           echo github.event_name: "${{ github.event_name }} "
           echo github.head_ref: "${{ github.head_ref }}"
           echo github.ref: "${{ github.ref }}"
-          if [ "${{ github.ref }}" != 'refs/heads/staging' ]  \
+          if [ "${{ github.ref }}" != 'refs/heads/staging' ]  && \
              [ "${{ github.ref }}" != 'refs/heads/production' ] && \
              [ "${{ github.event_name }}" == 'pull_request' ]; then
             source_branch="${{ github.head_ref }}"
