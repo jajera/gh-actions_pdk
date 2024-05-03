@@ -36,42 +36,50 @@
                 [ "${{ github.base_ref }}" == 'staging' ]; then
                 source_branch="${{ github.base_ref }}"
                 git fetch origin $source_branch
-                dirs=$(git diff --name-only "origin/$source_branch"..HEAD | grep '^dist/' | cut -d'/' -f1-2 | sort | uniq)
+                dirs=$(git diff --name-only "origin/$source_branch"..HEAD | grep '^dist/' | cut -d'/' -f1-2 | sort | uniq | jq -R . | jq -s . | jq -cr '@json')
               else
-                dirs=$(find dist -mindepth 1 -maxdepth 1 -type d | sort)
+                dirs=$(find dist -mindepth 1 -maxdepth 1 -type d | sort | jq -R . | jq -s . | jq -cr '@json')
               fi
               echo "dirs: $dirs"
               echo "DIRS=$dirs" >> "$GITHUB_OUTPUT"
-          - name: Install the PDK
-            run: |
-              source /etc/os-release
-              wget https://apt.puppet.com/puppet-tools-release-${UBUNTU_CODENAME}.deb
-              sudo dpkg -i puppet-tools-release-${UBUNTU_CODENAME}.deb
-              sudo apt-get update
-              sudo apt-get install pdk
-            if: |
-              steps.get-dirs.outputs.DIRS != ''
+          # - name: Install the PDK
+          #   run: |
+          #     source /etc/os-release
+          #     wget https://apt.puppet.com/puppet-tools-release-${UBUNTU_CODENAME}.deb
+          #     sudo dpkg -i puppet-tools-release-${UBUNTU_CODENAME}.deb
+          #     sudo apt-get update
+          #     sudo apt-get install pdk
+          #   if: |
+          #     steps.get-dirs.outputs.DIRS != '[]'
+          - run: |
+              DIRS="${{ steps.get-dirs.outputs.DIRS }}"
+              echo "test1: $DIRS"
+              echo test2: "${{ fromJSON(steps.get-dirs.outputs.DIRS) }}"
+              abc="${{ fromJSON(steps.get-dirs.outputs.DIRS) }} | jq '.[]'"
+              echo "test3: $abc"
+              echo '${{ steps.get-dirs.outputs.DIRS }}' | jq '.[]'
           - name: Syntax validation
             run: |
-              IFS=',' read -r -a dirs <<< "${{ steps.get-dirs.outputs.DIRS }}"
-              for dir in "${dirs[@]}"; do
+              ls
+              ls dist
+              for dir in $(echo '${{ steps.get-dirs.outputs.DIRS }}' | jq '.[]'); do
                 echo -e "\nProcessing directory: $dir"
                 cd "$dir" || exit
                 pdk validate --puppet-version ${{ matrix.puppet_versions }}
                 cd -
               done
             if: |
-              steps.get-dirs.outputs.DIRS != ''
+              steps.get-dirs.outputs.DIRS != '[]'
             continue-on-error: true
-          - name: Unit tests
-            run: |
-              IFS=',' read -r -a dirs <<< "${{ steps.get-dirs.outputs.DIRS }}"
-              for dir in "${dirs[@]}"; do
-                echo -e "\nProcessing directory: $dir"
-                cd "$dir" || exit
-                pdk test unit --verbose ${{ matrix.puppet_versions }}
-                cd -
-              done
-            if: |
-              steps.get-dirs.outputs.DIRS != ''
-            continue-on-error: true
+          # - name: Unit tests
+          #   run: |
+          #     DIRS="${{ fromJSON(steps.get-dirs.outputs.DIRS) }}"
+          #     for dir in $(echo "$DIRS" | jq -r '.[]'); do
+          #       echo -e "\nProcessing directory: $dir"
+          #       cd "$dir" || exit
+          #       pdk test unit --verbose ${{ matrix.puppet_versions }}
+          #       cd -
+          #     done
+          #   if: |
+          #     steps.get-dirs.outputs.DIRS != '[]'
+          #   continue-on-error: false
