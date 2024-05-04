@@ -40,7 +40,7 @@ jobs:
           fi
           echo "dirs: $dirs"
           echo "DIRS=$dirs" >> "$GITHUB_OUTPUT"
-  pdk_run_needed:
+  pdk_run:
     needs: initialize
     if: |
       needs.initialize.outputs.DIRS != '[]' &&
@@ -48,17 +48,17 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       DIRS: ${{ needs.initialize.outputs.DIRS }}
-    name: PDK Run Needed
+    name: PDK Run
     steps:
       - name: Sub-job to check if DIRS is not empty
         run: echo "DIRS is not empty"
 
   pdk_test:
-    needs: pdk_run_needed
+    needs: pdk_run
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dir: ${{ fromJSON(needs.pdk_run_needed.outputs.DIRS) }}
+        dir: ${{ fromJSON(needs.pdk_run.outputs.DIRS) }}
         puppet_version:
           - "7"
     name: Puppet ${{ matrix.puppet_version }} - matrix
