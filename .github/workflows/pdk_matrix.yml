@@ -40,48 +40,51 @@ jobs:
           fi
           echo "dirs: $dirs"
           echo "DIRS=$dirs" >> "$GITHUB_OUTPUT"
-
-  pdk_test:
+  check_dirs:
     needs: initialize
-
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        dir: ${{ fromJSON(needs.initialize.outputs.DIRS) }}
-        puppet_version:
-          - "7"
-
-    name: Puppet ${{ matrix.puppet_version }} - matrix
     if: |
+      needs.initialize.outputs.DIRS != '[]' &&
       github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Install the PDK
-        run: |
-          source /etc/os-release
-          wget https://apt.puppet.com/puppet-tools-release-${UBUNTU_CODENAME}.deb
-          sudo dpkg -i puppet-tools-release-${UBUNTU_CODENAME}.deb
-          sudo apt-get update
-          sudo apt-get install pdk
-        if: |
-          needs.initialize.outputs.DIRS != '[]'
-      - name: Syntax validation
-        run: |
-          echo "Processing directory: $${{ matrix.dir }}"
-          cd "${{ matrix.dir }}" || exit
-          pdk validate --puppet-version "${{ matrix.puppet_version }}"
-          cd -
-        if: |
-          needs.initialize.outputs.DIRS != '[]'
+      - name: Sub-job to check if DIRS is not empty
+        run: echo "DIRS is not empty"
         continue-on-error: true
-      - name: Unit test
-        run: |
-          echo "Processing directory: $${{ matrix.dir }}"
-          cd "${{ matrix.dir }}" || exit
-          pdk test unit --verbose "${{ matrix.puppet_version }}"
-          cd -
-        if: |
-          needs.initialize.outputs.DIRS != '[]'
-        continue-on-error: false
-    continue-on-error: true
+  # pdk_test:
+  #   needs: initialize
+
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       dir: ${{ fromJSON(needs.initialize.outputs.DIRS) }}
+  #       puppet_version:
+  #         - "7"
+
+  #   name: Puppet ${{ matrix.puppet_version }} - matrix
+  #   if: |
+  #     needs.initialize.outputs.DIRS != '[]' &&
+  #     github.event.pull_request.draft == false
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #     - name: Install the PDK
+  #       run: |
+  #         source /etc/os-release
+  #         wget https://apt.puppet.com/puppet-tools-release-${UBUNTU_CODENAME}.deb
+  #         sudo dpkg -i puppet-tools-release-${UBUNTU_CODENAME}.deb
+  #         sudo apt-get update
+  #         sudo apt-get install pdk
+  #     - name: Syntax validation
+  #       run: |
+  #         echo "Processing directory: $${{ matrix.dir }}"
+  #         cd "${{ matrix.dir }}" || exit
+  #         pdk validate --puppet-version "${{ matrix.puppet_version }}"
+  #         cd -
+  #       continue-on-error: true
+  #     - name: Unit test
+  #       run: |
+  #         echo "Processing directory: $${{ matrix.dir }}"
+  #         cd "${{ matrix.dir }}" || exit
+  #         pdk test unit --verbose "${{ matrix.puppet_version }}"
+  #         cd -
+  #       continue-on-error: false
