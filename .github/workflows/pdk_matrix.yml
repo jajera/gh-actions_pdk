@@ -84,3 +84,4 @@ jobs:
         if: |
           needs.initialize.outputs.DIRS != '[]'
         continue-on-error: false
+    continue-on-error: true
