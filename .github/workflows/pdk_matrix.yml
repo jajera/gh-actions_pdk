@@ -53,7 +53,6 @@ jobs:
 
     name: Puppet ${{ matrix.puppet_version }} - matrix
     if: |
-      needs.initialize.outputs.DIRS != '[]' &&
       github.event.pull_request.draft == false
     steps:
       - name: Checkout code
@@ -65,12 +64,16 @@ jobs:
           sudo dpkg -i puppet-tools-release-${UBUNTU_CODENAME}.deb
           sudo apt-get update
           sudo apt-get install pdk
+        if: |
+          needs.initialize.outputs.DIRS != '[]'
       - name: Syntax validation
         run: |
           echo "Processing directory: $${{ matrix.dir }}"
           cd "${{ matrix.dir }}" || exit
           pdk validate --puppet-version "${{ matrix.puppet_version }}"
           cd -
+        if: |
+          needs.initialize.outputs.DIRS != '[]'
         continue-on-error: true
       - name: Unit test
         run: |
@@ -78,4 +81,6 @@ jobs:
           cd "${{ matrix.dir }}" || exit
           pdk test unit --verbose "${{ matrix.puppet_version }}"
           cd -
+        if: |
+          needs.initialize.outputs.DIRS != '[]'
         continue-on-error: false
