@@ -54,7 +54,7 @@ jobs:
       - name: Syntax validation
         run: |
           for dir in $(echo '${{ steps.get-dirs.outputs.DIRS }}' | jq -r '.[]'); do
-            echo -e "Processing directory: $dir"
+            echo -e "\nProcessing directory: $dir"
             cd "$dir" || exit
             pdk validate --puppet-version "${{ matrix.puppet_version }}"
             cd -
