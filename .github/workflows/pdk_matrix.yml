@@ -1,5 +1,5 @@
 ---
-name: pdk
+name: pdk_matrix
 
 on:
   push:
@@ -50,11 +50,10 @@ jobs:
         dir: ${{ fromJSON(needs.initialize.outputs.DIRS) }}
         puppet_version:
           - "7"
-    name: ${{ matrix.dir }} - ${{ matrix.puppet_version }}
+
+    name: Puppet ${{ matrix.puppet_version }} - matrix
     if: |
-      needs.initialize.outputs.DIRS != '' &&
       needs.initialize.outputs.DIRS != '[]' &&
-      needs.initialize.outputs.DIRS != 'null' &&
       github.event.pull_request.draft == false
     steps:
       - name: Checkout code
