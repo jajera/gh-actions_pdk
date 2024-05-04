@@ -1,3 +1,4 @@
+---
 name: Commit Message Conformance
 on:
   pull_request: {}
@@ -9,3 +10,4 @@ permissions:
 jobs:
   commitmsg-conform:
     uses: platformfuzz/actions/.github/workflows/commitmsg-conform.yml@main
+    name: Commit Message Conformance
