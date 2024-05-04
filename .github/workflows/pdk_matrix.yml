@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       DIRS: ${{ steps.get-dirs.outputs.DIRS }}
-    name: Initialization
+      name: Initialization
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -40,31 +40,21 @@ jobs:
           fi
           echo "dirs: $dirs"
           echo "DIRS=$dirs" >> "$GITHUB_OUTPUT"
-  pdk_run:
-    needs: initialize
-    if: |
-      needs.initialize.outputs.DIRS != '[]' &&
-      github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
-    outputs:
-      DIRS: ${{ needs.initialize.outputs.DIRS }}
-    name: PDK Run
-    steps:
-      - name: Sub-job to check if DIRS is not empty
-        run: echo "DIRS is not empty"
 
   pdk_test:
-    needs: pdk_run
+    needs: initialize
+
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dir: ${{ fromJSON(needs.pdk_run.outputs.DIRS) }}
+        dir: ${{ fromJSON(needs.initialize.outputs.DIRS) }}
         puppet_version:
           - "7"
-    name: Puppet ${{ matrix.puppet_version }} - matrix
-    # if: |
-    #   needs.initialize.outputs.DIRS != '[]' &&
-    #   github.event.pull_request.draft == false
+
+    name: ${{ matrix.dir }} - ${{ matrix.puppet_version }}
+    if: |
+      needs.initialize.outputs.DIRS != '[]' &&
+      github.event.pull_request.draft == false
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -77,14 +67,14 @@ jobs:
           sudo apt-get install pdk
       - name: Syntax validation
         run: |
-          echo "Processing directory: $${{ matrix.dir }}"
+          echo "Processing directory: ${{ matrix.dir }}"
           cd "${{ matrix.dir }}" || exit
           pdk validate --puppet-version "${{ matrix.puppet_version }}"
           cd -
         continue-on-error: true
       - name: Unit test
         run: |
-          echo "Processing directory: $${{ matrix.dir }}"
+          echo "Processing directory: ${{ matrix.dir }}"
           cd "${{ matrix.dir }}" || exit
           pdk test unit --verbose "${{ matrix.puppet_version }}"
           cd -
