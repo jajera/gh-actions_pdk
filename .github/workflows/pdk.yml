@@ -4,8 +4,7 @@ name: pdk
 on:
   push:
     branches:
-      - "production"
-      - "staging"
+      - "development"
   pull_request:
     branches:
       - "production"
