@@ -12,4 +12,5 @@ permissions:
 jobs:
   markdown-lint:
     uses: actionsforge/actions/.github/workflows/markdown-lint.yml@main
-
+    with:
+      ignore: node_modules dist
